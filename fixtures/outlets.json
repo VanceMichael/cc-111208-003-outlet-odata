@@ -1,0 +1,1 @@
+{"value": [{"outletId": "A", "version": "r1", "slotVersion": "s1", "Slots": [{"slotId": "1", "day": "Sat"}], "Slots@odata.nextLink": "/slots/A?cursor=x"}], "@odata.nextLink": "/outlets?cursor=b"}
