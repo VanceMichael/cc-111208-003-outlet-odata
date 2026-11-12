@@ -1,9 +1,13 @@
 # 接收流程核验
 
-当前版本只提供原文留存与单份检查，不声称具有业务接收功能。新增流程应有独立的端到端回归测试；原有测试只证明原功能。
+peek/capture 只提供原文留存与单份检查，不声称具有业务接收功能。walk 是独立业务流程，拥有自己的端到端回归测试 `tests/test_walk.py`；原有 `tests/test_baseline.py` 只证明原功能。
 
-- 父 A/B 相同 slotId 不混淆，根链结束不代表子链结束
-- 父子版本切换隔离迟到页，链环和跨 origin 在限额内失败
-- 打乱 HTTP 完成顺序及重启后检查持久化账本
+已覆盖的 walk 验收点（本地合成目录，全部经 loopback HTTP 与 SQLite 账本核验）：
 
-允许扩充 fixtures/source.json。运行本地服务后可访问 /__requests 核对真实方法、请求头和正文。每次演示用新的临时状态目录；崩溃测试必须启动子进程并实际终止，不只模拟抛异常。正式演示选择上述业务闭环中的一个，控制在 90 秒内；准备依赖和构建在演示前完成。
+- 父 A/B 相同 slotId 不混淆，根链结束不代表子链结束：`test_same_slot_id_under_different_parents_is_not_mixed`、`test_root_ending_is_not_walk_completion_and_resume_finishes`
+- 父子版本切换隔离迟到页，链环和跨 origin 在限额内失败：`test_outlet_version_switch_builds_isolated_generations`、`test_late_old_version_child_page_is_kept_isolated_not_merged`、`test_continuation_loop_fails_within_budget_and_is_reported`、`test_cross_origin_next_link_is_rejected_before_request`
+- 缺业务键、空下一页、子页 owner/version 不符有界失败且不连坐其他门店：`test_missing_business_key_and_empty_next_link_are_bounded_failures`、`test_owner_mismatch_page_is_isolated_and_other_outlet_survives`
+- 打乱 HTTP 完成顺序及重启后检查持久化账本：`test_shuffled_http_completion_order_keeps_ownership`、`test_deterministic_ledger_apply_order_invariance`、`test_subprocess_crash_then_resume_uses_persistent_ledger`
+- 同店根页重复、子页重复时段去重，相对链接按响应地址解析：`test_same_outlet_repeated_on_root_pages_does_not_duplicate`、`test_duplicate_slot_on_child_page_is_stored_once`、`test_relative_link_resolved_against_response_address`
+
+允许扩充 fixtures/source.json。运行本地服务后可访问 /__requests 核对真实方法、请求头和正文。每次演示用新的临时状态目录；崩溃测试必须启动子进程并实际终止，不只模拟抛异常（见 `test_subprocess_crash_then_resume_uses_persistent_ledger`）。正式演示选择上述业务闭环中的一个，控制在 90 秒内；准备依赖和构建在演示前完成。

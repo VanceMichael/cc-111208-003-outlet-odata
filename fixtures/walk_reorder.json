@@ -1,0 +1,20 @@
+{
+  "routes": {
+    "GET /outlets": [
+      {
+        "body": "{\"value\": [{\"outletId\": \"A\", \"version\": \"r1\", \"slotVersion\": \"s1\", \"Slots\": [{\"slotId\": \"1\", \"day\": \"Sat\"}], \"Slots@odata.nextLink\": \"/slots/A?cursor=x\"}, {\"outletId\": \"B\", \"version\": \"r1\", \"slotVersion\": \"s1\", \"Slots\": [{\"slotId\": \"1\", \"day\": \"Sun\"}], \"Slots@odata.nextLink\": \"/slots/B?cursor=x\"}]}"
+      }
+    ],
+    "GET /slots/A?cursor=x": [
+      {
+        "delay": 0.2,
+        "body": "{\"owner\": \"A\", \"version\": \"s1\", \"value\": [{\"slotId\": \"2\", \"day\": \"Sun\"}]}"
+      }
+    ],
+    "GET /slots/B?cursor=x": [
+      {
+        "body": "{\"owner\": \"B\", \"version\": \"s1\", \"value\": [{\"slotId\": \"2\", \"day\": \"Sat\"}]}"
+      }
+    ]
+  }
+}

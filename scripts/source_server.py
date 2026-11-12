@@ -5,6 +5,7 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 import json
 from pathlib import Path
 import threading
+import time
 from urllib.parse import parse_qs
 
 
@@ -14,6 +15,7 @@ class ReplayServer(ThreadingHTTPServer):
         self.routes = json.loads((self.root / scenario).read_text())['routes']
         self.counts = {}
         self.requests = []
+        self.completions = []
         self.guard = threading.Lock()
         super().__init__((host, port), ReplayHandler)
 
@@ -57,16 +59,23 @@ class ReplayHandler(BaseHTTPRequestHandler):
                 self.respond(400, {}, b'request body mismatch')
                 return
             self.server.counts[key] = offset + 1
-            if 'file' in choice:
-                payload = (self.server.root / choice['file']).read_bytes()
-            elif 'base64' in choice:
-                payload = base64.b64decode(choice['base64'])
-            else:
-                payload = choice.get('body', '').encode()
-            payload = payload.replace(b'{{ORIGIN}}', self.server.origin.encode())
-            headers = {name: value.replace('{{ORIGIN}}', self.server.origin)
-                       for name, value in choice.get('headers', {}).items()}
-            self.respond(choice.get('status', 200), headers, payload)
+            delay = choice.get('delay')
+        if delay:
+            # Never sleep while holding the shared guard: a slow route must not
+            # block every other concurrent request.
+            time.sleep(float(delay))
+        with self.server.guard:
+            self.server.completions.append(self.path)
+        if 'file' in choice:
+            payload = (self.server.root / choice['file']).read_bytes()
+        elif 'base64' in choice:
+            payload = base64.b64decode(choice['base64'])
+        else:
+            payload = choice.get('body', '').encode()
+        payload = payload.replace(b'{{ORIGIN}}', self.server.origin.encode())
+        headers = {name: value.replace('{{ORIGIN}}', self.server.origin)
+                   for name, value in choice.get('headers', {}).items()}
+        self.respond(choice.get('status', 200), headers, payload)
 
     def respond(self, status, headers, payload):
         self.send_response(status)

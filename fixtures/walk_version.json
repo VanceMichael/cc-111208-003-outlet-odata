@@ -1,0 +1,24 @@
+{
+  "routes": {
+    "GET /outlets": [
+      {
+        "body": "{\"value\": [{\"outletId\": \"A\", \"version\": \"r1\", \"slotVersion\": \"s1\", \"Slots\": [{\"slotId\": \"1\", \"day\": \"Sat\"}], \"Slots@odata.nextLink\": \"/slots/A?cursor=old\"}], \"@odata.nextLink\": \"/outlets?cursor=b\"}"
+      }
+    ],
+    "GET /outlets?cursor=b": [
+      {
+        "body": "{\"value\": [{\"outletId\": \"A\", \"version\": \"r2\", \"slotVersion\": \"s2\", \"Slots\": [{\"slotId\": \"9\", \"day\": \"Sat\"}], \"Slots@odata.nextLink\": \"/slots/A?cursor=new\"}]}"
+      }
+    ],
+    "GET /slots/A?cursor=old": [
+      {
+        "body": "{\"owner\": \"A\", \"version\": \"s1\", \"value\": [{\"slotId\": \"2\", \"day\": \"Sun\"}]}"
+      }
+    ],
+    "GET /slots/A?cursor=new": [
+      {
+        "body": "{\"owner\": \"A\", \"version\": \"s2\", \"value\": [{\"slotId\": \"10\", \"day\": \"Sun\"}]}"
+      }
+    ]
+  }
+}

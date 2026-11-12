@@ -1,0 +1,19 @@
+{
+  "routes": {
+    "GET /outlets": [
+      {
+        "body": "{\"value\": [{\"outletId\": \"A\", \"version\": \"r1\", \"slotVersion\": \"s1\", \"Slots\": [{\"slotId\": \"1\"}], \"Slots@odata.nextLink\": \"/slots/A?cursor=x\"}], \"@odata.nextLink\": \"/outlets?cursor=b\"}"
+      }
+    ],
+    "GET /outlets?cursor=b": [
+      {
+        "body": "{\"value\": [{\"version\": \"r1\", \"slotVersion\": \"s1\", \"Slots\": []}]}"
+      }
+    ],
+    "GET /slots/A?cursor=x": [
+      {
+        "body": "{\"owner\": \"A\", \"version\": \"s1\", \"value\": [], \"@odata.nextLink\": \"   \"}"
+      }
+    ]
+  }
+}
